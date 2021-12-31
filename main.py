@@ -33,5 +33,4 @@ img2 = plt_rectangles(img, stats)
 print(stats.shape[0],'fossils were found')
 
 plt.imshow(img2,'gray',vmin=0,vmax=255)
-plt.savefig('save.png',dpi=1000)
-plt.show()
+plt.savefig(f'imgs_rectangled/{img_name.split(".")[0]}.png',dpi=1000)
