@@ -5,9 +5,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 import os, msvcrt
 
-directory = os.fsencode('imgs_np')
+batch_name = 'test'
 
+directory = os.fsencode(f'imgs_np/{batch_name}')
 
+if  os.path.isdir(directory):
+    inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue?') or "y")
+    if inputt=='n':
+        sys.exit('User terminated as folder already exists')
 
 def press(event):
     global cnt
@@ -28,12 +33,12 @@ for c, file in enumerate(os.listdir(directory)):
         plt.show()
         plt.close()
 
-        if not os.path.isdir(f'imgs_classified/{cnt}'):
-            os.makedirs(f'imgs_classified/{cnt}')
-        next_num = len(os.listdir(f'imgs_classified/{cnt}'))
-        np.save(f'imgs_classified/{cnt}/{next_num+1}.npy',arr)
-
-    if c == 5:
-        break
+        if cnt == 'x':
+            sys.exit('Operation terminated by user')
+        if not os.path.isdir(f'imgs_classified/{batch_name}/{cnt}'):
+            os.makedirs(f'imgs_classified/{batch_name}/{cnt}')
+        next_num = len(os.listdir(f'imgs_classified/{batch_name}/{cnt}'))
+        np.save(f'imgs_classified/{batch_name}/{cnt}/{next_num+1}.npy',arr)
+        os.remove(str(directory, 'UTF8')+'/'+str(filename))
 
 
