@@ -28,9 +28,10 @@ for c, file in enumerate(os.listdir(directory)):
         plt.show()
         plt.close()
 
-
-        list = os.listdir(dir)  # dir is your directory path
-        number_files = len(list)
+        if not os.path.isdir(f'imgs_classified/{cnt}'):
+            os.makedirs(f'imgs_classified/{cnt}')
+        next_num = len(os.listdir(f'imgs_classified/{cnt}'))
+        np.save(f'imgs_classified/{cnt}/{next_num+1}.npy',arr)
 
     if c == 5:
         break
