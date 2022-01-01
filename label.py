@@ -13,8 +13,8 @@ batch_name = 'test'
 
 # This bit sets up a few initial variables:
 directory = os.fsencode(f'imgs_np/{batch_name}')
-global cnt, next_num, cnt_prev, in_dir_files
-cnt, next_num, prev = 0, 0, 0
+global cnt, next_num, cnt_prev, in_dir_files, err_count
+cnt, next_num, prev, err_count = 0, 0, 0, 0
 in_dir_files = os.listdir(directory)
 if os.path.isdir(f'imgs_classified/{batch_name}'):
     inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue? (y/n): ') or "y")
@@ -30,16 +30,20 @@ def press(event):
     If you press any other key that is valid as a filename (i.e. any latter or any number) it will
     return the character to be used for the classification folder name
     '''
-    global cnt, next_num, cnt_prev
+    global cnt, next_num, cnt_prev, err_count
     print('press', event.key)
     cnt = event.key
     if cnt != 'z':
         plt.close()
     elif cnt == 'z':
-        print('moving and undoing')
-        err_num = len([i for i in os.listdir(f'imgs_classified/{batch_name}/') if ('err' in i)])
-        os.rename(f'imgs_classified/{batch_name}/{cnt_prev}/{next_num + 1}.npy',
-                  f'imgs_np/{batch_name}/err_{err_num + 1}.npy')
+        try:
+            err_count += 1
+            err_num = len([i for i in os.listdir(f'imgs_np/{batch_name}/') if ('err' in i)])
+            os.rename(f'imgs_classified/{batch_name}/{cnt_prev}/{next_num + 1}.npy',
+                      f'imgs_np/{batch_name}/err_{err_num + 1}.npy')
+            print('moving and undoing')
+        except:
+            print('You have already done one undo, try a different key (sorry only one undo implemented)')
 
     return event.key
 
@@ -78,5 +82,9 @@ if __name__ == '__main__':
             os.remove(str(directory, 'UTF8')+'/'+str(filename))
             # Saves previous index in case we need to undo this
             cnt_prev = copy.deepcopy(cnt)
+3
+print(f'Done {len(in_dir_files)} with {err_count} undoes.')
+if err_count>0:
+    print('If you want to fix the errors rerun the program without changing any settings.')
 
 
