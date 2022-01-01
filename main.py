@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 thresholding_level = 25
 min_side = 30
 max_side = 200
-img_name = 'test1.tif'
+img_name = 'Original_halved.tif'
 batch_name = 'test'
 
 '''             DOWN TO HERE            '''
@@ -47,6 +47,7 @@ if __name__=='__main__':
 
     # Divides the ORIGINAL IMAGE according to stats and saves the fossils as numpy arrays in imgs_np.
     divide_image(img_original, stats, batch_name, mode = 'np')
+    divide_image(img_original, stats, batch_name, mode='png')
 
     # Plots rectangles on the thresholded images and saves the rectangles in imgs_rectangles
     img_rectangled = plt_rectangles(img_thresholded, stats)
