@@ -1,6 +1,6 @@
 from lib.utils import threshold_image, get_connected_components, plt_rectangles, divide_image
 import cv2 as cv
-import sys, os
+import sys, os, shutil
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -21,10 +21,16 @@ given by batch_name'''
 
 if not os.path.isdir(f'imgs_np/{batch_name}'):
     os.makedirs(f'imgs_np/{batch_name}')
+    os.makedirs(f'imgs_png/{batch_name}')
 else:
     inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue? (y/n): ') or "y")
     if inputt=='n':
         sys.exit('User terminated as folder already exists')
+    else:
+        shutil.rmtree(f'imgs_np/{batch_name}')
+        os.makedirs(f'imgs_np/{batch_name}')
+        shutil.rmtree(f'imgs_png/{batch_name}')
+        os.makedirs(f'imgs_png/{batch_name}')
 
 '''
 The main loop.
