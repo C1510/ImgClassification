@@ -27,10 +27,15 @@ else:
     if inputt=='n':
         sys.exit('User terminated as folder already exists')
     else:
-        shutil.rmtree(f'imgs_np/{batch_name}')
-        os.makedirs(f'imgs_np/{batch_name}')
-        shutil.rmtree(f'imgs_png/{batch_name}')
-        os.makedirs(f'imgs_png/{batch_name}')
+        if not os.path.isdir(f'imgs_png/{batch_name}'):
+            os.makedirs(f'imgs_png/{batch_name}')
+        shutil.rmtree(f'imgs_np/{batch_name}/')
+        os.makedirs(f'imgs_np/{batch_name}/')
+        try:
+            shutil.rmtree(f'imgs_png/{batch_name}/')
+            os.makedirs(f'imgs_png/{batch_name}/')
+        except:
+            pass
 
 '''
 The main loop.
