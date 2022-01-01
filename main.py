@@ -10,7 +10,8 @@ from matplotlib import pyplot as plt
 thresholding_level = 25
 min_side = 30
 max_side = 200
-img_name = 'test1.tif'
+border = 5
+img_name = 'Original_halved.tif'
 batch_name = 'test'
 
 '''             DOWN TO HERE            '''
@@ -54,7 +55,7 @@ if __name__=='__main__':
     a, img_thresholded = threshold_image(img_original, thresholding_level, mode = 'mg')
 
     # Takes the thresholded image and returns the rectangles around the particles
-    stats = get_connected_components(img_thresholded, min_side=min_side, max_side=max_side)
+    stats = get_connected_components(img_thresholded, min_side=min_side, max_side=max_side, border = border)
 
     # Divides the ORIGINAL IMAGE according to stats and saves the fossils as numpy arrays in imgs_np.
     divide_image(img_original, stats, batch_name, mode = 'np')
