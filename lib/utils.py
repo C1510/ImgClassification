@@ -1,6 +1,7 @@
 import cv2 as cv
 import sys, math
 import numpy as np
+from matplotlib import pyplot as plt
 
 
 def threshold_image(img, thresh, mode = 'mg'):
@@ -11,6 +12,7 @@ def threshold_image(img, thresh, mode = 'mg'):
     ret, thresh = cv.threshold(img, thresh, 255, thresh_method)
     thresh = cv.cvtColor(thresh, cv.COLOR_BGR2GRAY)
     return ret, thresh
+
 
 def get_connected_components(img, min_side, max_side=None):
     b = cv.bitwise_not(img)
@@ -33,6 +35,7 @@ def get_connected_components(img, min_side, max_side=None):
 
     return stats
 
+
 def plt_rectangles(img, stats):
     img = cv.cvtColor(img, cv.COLOR_GRAY2RGB)
     for col in stats:
@@ -40,25 +43,15 @@ def plt_rectangles(img, stats):
         cv.rectangle(img, (col[0], col[1]), (col[0] + col[2], col[1] + col[3]), color, 1)
     return img
 
-def _find_getch():
-    try:
-        import termios
-    except ImportError:
-        # Non-POSIX. Return msvcrt's (Windows') getch.
-        import msvcrt
-        return msvcrt.getch
 
-    # POSIX system. Create and return a getch that manipulates the tty.
-    import sys, tty
-    def _getch():
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(fd)
-            ch = sys.stdin.read(1)
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-        return ch
-
-    return _getch
-
+def divide_image(img_original, stats, batch_name, mode = 'np'):
+    for c, col in enumerate(stats):
+        if mode == 'np':
+            np.save(f'imgs_np/{batch_name}/{c}.npy', img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
+        elif mode == 'png':
+            plt.imshow(img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]], 'gray', vmin=0, vmax=255)
+            plt.savefig(f'imgs_np/{batch_name}/{c}.png', dpi=1000)
+        # if c<2:
+        #     plt.imshow(img_original[col[1]:col[1]+col[3], col[0]:col[0]+col[2]], 'gray', vmin=0, vmax=255)
+        #     plt.show()
+    return
