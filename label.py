@@ -1,6 +1,6 @@
 from lib.utils import threshold_image, get_connected_components
 import cv2 as cv
-import sys
+import sys, shutil
 import numpy as np
 from matplotlib import pyplot as plt
 import os, msvcrt, copy
@@ -12,7 +12,7 @@ batch_name = 'test'
 '''             DOWN TO HERE            '''
 
 # This bit sets up a few initial variables:
-directory = os.fsencode(f'imgs_np/{batch_name}')
+directory = os.fsencode(f'lib/imgs_np/{batch_name}')
 global cnt, next_num, cnt_prev, in_dir_files, err_count
 cnt, next_num, prev, err_count = 0, 0, 0, 0
 in_dir_files = os.listdir(directory)
@@ -20,6 +20,16 @@ if os.path.isdir(f'imgs_classified/{batch_name}'):
     inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue? (y/n): ') or "y")
     if inputt=='n':
         sys.exit('User terminated as folder already exists')
+    else:
+        if not os.path.isdir(f'imgs_classified_png/{batch_name}'):
+            os.makedirs(f'imgs_classified_png/{batch_name}')
+        shutil.rmtree(f'imgs_classified/{batch_name}/')
+        os.makedirs(f'imgs_classified/{batch_name}/')
+        try:
+            shutil.rmtree(f'imgs_classified_png/{batch_name}/')
+            os.makedirs(f'imgs_classified_png/{batch_name}/')
+        except:
+            pass
 
 
 def press(event):
@@ -38,9 +48,10 @@ def press(event):
     elif cnt == 'z':
         try:
             err_count += 1
-            err_num = len([i for i in os.listdir(f'imgs_np/{batch_name}/') if ('err' in i)])
+            err_num = len([i for i in os.listdir(f'lib/imgs_np/{batch_name}/') if ('err' in i)])
             os.rename(f'imgs_classified/{batch_name}/{cnt_prev}/{next_num + 1}.npy',
-                      f'imgs_np/{batch_name}/err_{err_num + 1}.npy')
+                      f'lib/imgs_np/{batch_name}/err_{err_num + 1}.npy')
+            os.remove(f'imgs_classified_png/{batch_name}/{cnt_prev}/{next_num + 1}.png')
             print('moving and undoing')
         except:
             print('You have already done one undo, try a different key (sorry only one undo implemented)')
@@ -76,10 +87,15 @@ if __name__ == '__main__':
             # Saves file according to classification
             if not os.path.isdir(f'imgs_classified/{batch_name}/{cnt}'):
                 os.makedirs(f'imgs_classified/{batch_name}/{cnt}')
+            if not os.path.isdir(f'imgs_classified_png/{batch_name}/{cnt}'):
+                os.makedirs(f'imgs_classified_png/{batch_name}/{cnt}')
+
             next_num = len(os.listdir(f'imgs_classified/{batch_name}/{cnt}'))
             np.save(f'imgs_classified/{batch_name}/{cnt}/{next_num+1}.npy',arr)
+            cv.imwrite(f'imgs_classified_png/{batch_name}/{cnt}/{next_num+1}.png', arr)
             # Removes original image
             os.remove(str(directory, 'UTF8')+'/'+str(filename))
+            os.remove(f'lib/imgs_png/{batch_name}' + '/' + str(filename).split('.npy')[0]+'.png')
             # Saves previous index in case we need to undo this
             cnt_prev = copy.deepcopy(cnt)
 

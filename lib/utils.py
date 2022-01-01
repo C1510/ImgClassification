@@ -48,11 +48,11 @@ def divide_image(img_original, stats, batch_name, mode = 'np'):
     len_stats = len(stats)
     for c, col in enumerate(stats):
         if mode == 'np':
-            np.save(f'imgs_np/{batch_name}/{c}.npy', img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
+            np.save(f'lib/imgs_np/{batch_name}/{c}.npy', img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
         elif mode == 'png':
             if c % 50 == 0:
                 print(f'saved to png {c} of {len_stats}')
-            cv.imwrite(f'imgs_png/{batch_name}/{c}.png',img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
+            cv.imwrite(f'lib/imgs_png/{batch_name}/{c}.png',img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
             #plt.imshow(img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]], 'gray', vmin=0, vmax=255)
             #plt.savefig(f'imgs_np/{batch_name}/{c}.png', dpi=100)
         # if c<2:

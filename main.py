@@ -19,21 +19,21 @@ batch_name = 'test'
 ''' This will ask you if you already have data in the output folder
 given by batch_name'''
 
-if not os.path.isdir(f'imgs_np/{batch_name}'):
-    os.makedirs(f'imgs_np/{batch_name}')
-    os.makedirs(f'imgs_png/{batch_name}')
+if not os.path.isdir(f'lib/imgs_np/{batch_name}'):
+    os.makedirs(f'lib/imgs_np/{batch_name}')
+    os.makedirs(f'lib/imgs_png/{batch_name}')
 else:
     inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue? (y/n): ') or "y")
     if inputt=='n':
         sys.exit('User terminated as folder already exists')
     else:
-        if not os.path.isdir(f'imgs_png/{batch_name}'):
-            os.makedirs(f'imgs_png/{batch_name}')
-        shutil.rmtree(f'imgs_np/{batch_name}/')
-        os.makedirs(f'imgs_np/{batch_name}/')
+        if not os.path.isdir(f'lib/imgs_png/{batch_name}'):
+            os.makedirs(f'lib/imgs_png/{batch_name}')
+        shutil.rmtree(f'lib/imgs_np/{batch_name}/')
+        os.makedirs(f'lib/imgs_np/{batch_name}/')
         try:
-            shutil.rmtree(f'imgs_png/{batch_name}/')
-            os.makedirs(f'imgs_png/{batch_name}/')
+            shutil.rmtree(f'lib/imgs_png/{batch_name}/')
+            os.makedirs(f'lib/imgs_png/{batch_name}/')
         except:
             pass
 
