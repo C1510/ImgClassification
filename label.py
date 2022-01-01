@@ -16,8 +16,8 @@ directory = os.fsencode(f'imgs_np/{batch_name}')
 global cnt, next_num, cnt_prev, in_dir_files
 cnt, next_num, prev = 0, 0, 0
 in_dir_files = os.listdir(directory)
-if os.path.isdir(directory):
-    inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue?') or "y")
+if os.path.isdir(f'imgs_classified/{batch_name}'):
+    inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue? (y/n): ') or "y")
     if inputt=='n':
         sys.exit('User terminated as folder already exists')
 

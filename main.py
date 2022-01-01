@@ -22,7 +22,7 @@ given by batch_name'''
 if not os.path.isdir(f'imgs_np/{batch_name}'):
     os.makedirs(f'imgs_np/{batch_name}')
 else:
-    inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue?') or "y")
+    inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue? (y/n): ') or "y")
     if inputt=='n':
         sys.exit('User terminated as folder already exists')
 
