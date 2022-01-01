@@ -33,15 +33,12 @@ def get_connected_components(img, min_side, max_side=None, border = 0):
     mask = [True if (np.mean(img[col[1]:col[1]+col[3], col[0]:col[0]+col[2]])>10 and not math.isnan(np.mean(img[col[1]:col[1]+col[3], col[0]:col[0]+col[2]]))) else False for col in stats]
     stats = stats[mask, :]
 
-    print(stats)
     img_size = b.shape
 
     stats[:, 0] = np.maximum(stats[:, 0]-border, 0)
     stats[:, 1] = np.maximum(stats[:, 1]-border, 0)
     stats[:, 2] = np.minimum(stats[:, 2]+2*border, img_size[1])
     stats[:, 3] = np.minimum(stats[:, 3]+2*border, img_size[0])
-
-    print(stats)
 
     return stats
 

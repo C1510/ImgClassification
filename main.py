@@ -11,7 +11,7 @@ thresholding_level = 25
 min_side = 30
 max_side = 200
 border = 5
-img_name = 'Original_halved.tif'
+img_name = 'test1.tif'
 batch_name = 'test'
 
 '''             DOWN TO HERE            '''
