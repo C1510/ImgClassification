@@ -50,7 +50,7 @@ def divide_image(img_original, stats, batch_name, mode = 'np'):
             np.save(f'imgs_np/{batch_name}/{c}.npy', img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
         elif mode == 'png':
             plt.imshow(img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]], 'gray', vmin=0, vmax=255)
-            plt.savefig(f'imgs_np/{batch_name}/{c}.png', dpi=1000)
+            plt.savefig(f'imgs_np/{batch_name}/{c}.png', dpi=100)
         # if c<2:
         #     plt.imshow(img_original[col[1]:col[1]+col[3], col[0]:col[0]+col[2]], 'gray', vmin=0, vmax=255)
         #     plt.show()
