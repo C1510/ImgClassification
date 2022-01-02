@@ -8,6 +8,7 @@ import os, msvcrt, copy
 ''' THESE ARE PARAMETERS YOU CAN CHANGE  '''
 
 batch_name = 'test'
+figsize = 2
 
 '''             DOWN TO HERE            '''
 
@@ -71,10 +72,16 @@ if __name__ == '__main__':
         # This if statement checks that the file is a numpy array (which is how I save the fossil examples)
         if filename.endswith(".npy"):
             cnt = 0
-            fig, ax = plt.subplots() # Creating the figure
+            fig, ax = plt.subplots(figsize=(figsize, figsize)) # Creating the figure
             arr = np.load(str(directory, 'UTF8')+'/'+str(filename)) # Opening the numpy array
             fig.canvas.mpl_connect('key_press_event', press) # Creates window for figure with function press waiting for key
-            ax.imshow(arr) # Fills the window with axes
+
+            min, max = np.min(arr), np.max(arr)
+            # Make a LUT (Look-Up Table) to translate image values
+            LUT = np.zeros(256, dtype=np.uint8)
+            LUT[min:max + 1] = np.linspace(start=0, stop=255, num=(max - min) + 1, endpoint=True, dtype=np.uint8)
+
+            ax.imshow(LUT[arr]) # Fills the window with axes
             plt.show() # Shows window
 
             # If key pressed = z the function press undoes previous action and this closes that plot ready for the next image
