@@ -65,11 +65,9 @@ if __name__=='__main__':
     # Plots rectangles on the thresholded images and saves the rectangles in imgs_rectangles
     print('Saving retangled image')
     img_rectangled = plt_rectangles(img_thresholded, stats)
-    plt.imshow(img_rectangled, 'gray', vmin=0, vmax=255)
-    plt.savefig(f'imgs_rectangled/{img_name.split(".")[0]}.png',dpi=1000)
+    cv.imwrite(f'imgs_rectangled/{img_name.split(".")[0]}.png', img_rectangled)
     img_rectangled = plt_rectangles(img_original, stats)
-    plt.imshow(img_rectangled, 'gray', vmin=0, vmax=255)
-    plt.savefig(f'imgs_rectangled/{img_name.split(".")[0]}_original.png', dpi=1000)
+    cv.imwrite(f'imgs_rectangled/{img_name.split(".")[0]}_original.png', img_rectangled)
 
     # This prints the number of fossils that were found
     print(stats.shape[0],'fossils were found')
