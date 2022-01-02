@@ -44,7 +44,10 @@ def get_connected_components(img, min_side, max_side=None, border = 0):
 
 
 def plt_rectangles(img, stats):
-    img = cv.cvtColor(img, cv.COLOR_GRAY2RGB)
+    try:
+        img = cv.cvtColor(img, cv.COLOR_GRAY2RGB)
+    except:
+        pass
     for col in stats:
         color = (255, 0, 0)
         cv.rectangle(img, (col[0], col[1]), (col[0] + col[2], col[1] + col[3]), color, 1)
@@ -57,8 +60,8 @@ def divide_image(img_original, stats, batch_name, mode = 'np'):
         if mode == 'np':
             np.save(f'lib/imgs_np/{batch_name}/{c}.npy', img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
         elif mode == 'png':
-            if c % 50 == 0:
-                print(f'saved to png {c} of {len_stats}')
+            # if c % 50 == 0:
+            #     print(f'saved to png {c} of {len_stats}')
             cv.imwrite(f'lib/imgs_png/{batch_name}/{c}.png',img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
             #plt.imshow(img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]], 'gray', vmin=0, vmax=255)
             #plt.savefig(f'imgs_np/{batch_name}/{c}.png', dpi=100)

@@ -58,10 +58,12 @@ if __name__=='__main__':
     stats = get_connected_components(img_thresholded, min_side=min_side, max_side=max_side, border = border)
 
     # Divides the ORIGINAL IMAGE according to stats and saves the fossils as numpy arrays in imgs_np.
+    print('Saving individual fossils')
     divide_image(img_original, stats, batch_name, mode = 'np')
     divide_image(img_original, stats, batch_name, mode='png')
 
     # Plots rectangles on the thresholded images and saves the rectangles in imgs_rectangles
+    print('Saving retangled image')
     img_rectangled = plt_rectangles(img_thresholded, stats)
     plt.imshow(img_rectangled, 'gray', vmin=0, vmax=255)
     plt.savefig(f'imgs_rectangled/{img_name.split(".")[0]}.png',dpi=1000)
