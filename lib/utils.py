@@ -37,8 +37,8 @@ def get_connected_components(img, min_side, max_side=None, border = 0):
 
     stats[:, 0] = np.maximum(stats[:, 0]-border, 0)
     stats[:, 1] = np.maximum(stats[:, 1]-border, 0)
-    stats[:, 2] = np.minimum(stats[:, 2]+2*border, img_size[1])
-    stats[:, 3] = np.minimum(stats[:, 3]+2*border, img_size[0])
+    stats[:, 2] = np.minimum(stats[:, 2]+2*border, img_size[1]-stats[:, 0])
+    stats[:, 3] = np.minimum(stats[:, 3]+2*border, img_size[0]-stats[:, 1])
 
     return stats
 
