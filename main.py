@@ -8,7 +8,7 @@ from matplotlib import pyplot as plt
 ''' THESE ARE PARAMETERS YOU CAN CHANGE  '''
 
 thresholding_level = 25
-min_side = 30
+min_side = 15
 max_side = 200
 border = 5
 img_name = 'Original_Halved.tif'
