@@ -3,6 +3,8 @@ import sys, os, subprocess
 # implement pip as a subprocess:
 package = 'opencv-python'
 subprocess.check_call([sys.executable, '-m', 'pip', 'install', f'{package}'])
+package = 'pandas'
+subprocess.check_call([sys.executable, '-m', 'pip', 'install', f'{package}'])
 
 if not os.path.isdir(f'imgs/'):
     os.makedirs(f'imgs/')
