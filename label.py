@@ -19,28 +19,28 @@ figsize = 2
 # This bit sets up a few initial variables:
 global cnt, err_count, stats_data
 cnt, prev, err_count = 0, 0, 0
-img_name_ext = img_name.split('.')[0]
+img_name_no_ext = img_name.split('.')[0]
 
-if os.path.isdir(f'imgs_classified/{batch_name}'):
-    inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue? (y/n): ') or "y")
+if os.path.isdir(f'imgs_classified/{batch_name}_{img_name_no_ext}'):
+    inputt = str(input(f'The folder {batch_name}_{img_name_no_ext} already exists are you sure you want to continue? (y/n): ') or "y")
     if inputt=='n':
         sys.exit('User terminated as folder already exists')
     else:
-        if not os.path.isdir(f'imgs_classified_png/{batch_name}'):
-            os.makedirs(f'imgs_classified_png/{batch_name}')
-        shutil.rmtree(f'imgs_classified/{batch_name}/')
-        os.makedirs(f'imgs_classified/{batch_name}/')
+        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}'):
+            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}')
+        shutil.rmtree(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
+        os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
         try:
-            shutil.rmtree(f'imgs_classified_png/{batch_name}/')
-            os.makedirs(f'imgs_classified_png/{batch_name}/')
+            shutil.rmtree(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/')
+            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/')
         except:
             pass
 else:
-    os.makedirs(f'imgs_classified_png/{batch_name}')
-    os.makedirs(f'imgs_classified/{batch_name}')
+    os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/')
+    os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
 
-if os.path.isfile(f'lib/stats_in_use/{batch_name}_{img_name_ext}.json'):
-    with open(f'lib/stats_in_use/{batch_name}_{img_name_ext}.json','r') as f:
+if os.path.isfile(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json'):
+    with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json','r') as f:
         stats_data = json.load(f)
 else:
     stats_data = {'rows_done': []}
@@ -71,7 +71,7 @@ this script by accident).
 
 if __name__ == '__main__':
 
-    stats = pd.read_csv(f'imgs_rectangled/{batch_name}/{img_name_ext}.txt', delimiter=' ')
+    stats = pd.read_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name_no_ext}.txt', delimiter=' ')
     stats = stats.to_numpy()
     stats = np.array(stats.tolist())
     img = cv.imread(cv.samples.findFile(f"imgs/{img_name}",0))
@@ -101,23 +101,23 @@ if __name__ == '__main__':
             plt.close()
         # If key pressed = x the program exits
         if cnt == 'x':
-            with open(f'lib/stats_in_use/{batch_name}_{img_name_ext}.json', 'w+') as f:
+            with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
                 json.dump(stats_data, f)
             sys.exit('Operation terminated by user')
 
         # Saves file according to classification
-        if not os.path.isdir(f'imgs_classified/{batch_name}/{cnt}'):
-            os.makedirs(f'imgs_classified/{batch_name}/{cnt}')
-        if not os.path.isdir(f'imgs_classified_png/{batch_name}/{cnt}'):
-            os.makedirs(f'imgs_classified_png/{batch_name}/{cnt}')
+        if not os.path.isdir(f'imgs_classified/{batch_name}_{img_name_no_ext}/{cnt}'):
+            os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/{cnt}')
+        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{cnt}'):
+            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{cnt}')
 
-        np.save(f'imgs_classified/{batch_name}/{cnt}/{c}.npy',arr)
-        cv.imwrite(f'imgs_classified_png/{batch_name}/{cnt}/{c}.png', arr)
+        np.save(f'imgs_classified/{batch_name}_{img_name_no_ext}/{cnt}/{c}.npy',arr)
+        cv.imwrite(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{cnt}/{c}.png', arr)
         # Removes original image
         stats_data['rows_done'].append(c)
         # Saves previous index in case we need to undo this
 
-with open(f'lib/stats_in_use/{batch_name}_{img_name_ext}.json', 'w+') as f:
+with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
     json.dump(stats_data, f)
 
 print(f'Done {stats.shape[0]} with {err_count} undoes.')

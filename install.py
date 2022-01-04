@@ -12,5 +12,3 @@ if not os.path.isdir(f'imgs_classified_png/'):
     os.makedirs(f'imgs_classified_png/')
 if not os.path.isdir(f'imgs_rectangled/'):
     os.makedirs(f'imgs_rectangled/')
-if not os.path.isdir(f'lib/stats_in_use/'):
-    os.makedirs(f'lib/stats_in_use/')
