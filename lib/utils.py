@@ -13,6 +13,9 @@ def threshold_image(img, thresh, mode = 'mg'):
         thresh_method = cv.THRESH_BINARY
     ret, thresh = cv.threshold(img, thresh, 255, thresh_method)
     thresh = cv.cvtColor(thresh, cv.COLOR_BGR2GRAY)
+    if mode == 'bi':
+        thresh = cv.bitwise_not(thresh)
+
     return ret, thresh
 
 
