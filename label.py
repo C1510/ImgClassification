@@ -17,7 +17,7 @@ figsize = 2
 '''             DOWN TO HERE            '''
 
 # This bit sets up a few initial variables:
-global cnt, err_count, stats_data
+global cnt, err_count, stats_data, stats
 cnt, prev, err_count = 0, 0, 0
 img_name_no_ext = img_name.split('.')[0]
 
@@ -53,13 +53,14 @@ def press(event):
     If you press any other key that is valid as a filename (i.e. any latter or any number) it will
     return the character to be used for the classification folder name
     '''
-    global cnt, err_count, stats_data
+    global cnt, err_count, stats_data, stats
     cnt = event.key
     if cnt != 'z':
         print('Classifying: ', event.key)
         plt.close()
     elif cnt == 'z':
         print('Undoing')
+        stats[stats_data['rows_done'][-1],-1]=-1
         stats_data['rows_done'] = stats_data['rows_done'][:-1]
     return event.key
 
@@ -102,6 +103,9 @@ if __name__ == '__main__':
         if cnt == 'x':
             with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
                 json.dump(stats_data, f)
+            np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats,
+                       fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',
+                       comments='')
             sys.exit('Operation terminated by user')
 
         # Saves file according to classification
@@ -112,12 +116,15 @@ if __name__ == '__main__':
 
         np.save(f'imgs_classified/{batch_name}_{img_name_no_ext}/{cnt}/{c}.npy',arr)
         cv.imwrite(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{cnt}/{c}.png', arr)
+        stats[c,-1]=int(cnt)
         # Removes original image
         stats_data['rows_done'].append(c)
-        # Saves previous index in case we need to undo this
 
 with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
     json.dump(stats_data, f)
+
+np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
+
 
 print(f'Done {stats.shape[0]} with {err_count} undoes.')
 if err_count>0:

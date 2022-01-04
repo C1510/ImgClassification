@@ -65,7 +65,7 @@ if __name__=='__main__':
     # This prints the number of fossils that were found
     print(stats.shape[0],'fossils were found')
 
-    stats = np.c_[stats, np.zeros(stats.shape[0]).reshape(-1,1)]
+    stats = np.c_[stats, (-1+np.zeros(stats.shape[0]).reshape(-1,1))]
 
     print(stats)
 
