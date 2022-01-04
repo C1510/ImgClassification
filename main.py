@@ -67,8 +67,6 @@ if __name__=='__main__':
 
     stats = np.c_[stats, (-1+np.zeros(stats.shape[0]).reshape(-1,1))]
 
-    print(stats)
-
     np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
 
 
