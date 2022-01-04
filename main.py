@@ -13,6 +13,7 @@ max_side = 200
 border = 5
 img_name = 'Original_Halved.tif'
 batch_name = 'test'
+threshold_mode = 'mg' #'mg' or 'bi'
 
 '''             DOWN TO HERE            '''
 
@@ -45,7 +46,7 @@ if __name__=='__main__':
     img_original = cv.imread(cv.samples.findFile(f"imgs/{img_name}",0))
 
     # This thresholds the image at the amount thresholding_level, with mode = 'mg' or 'bi' (mean gaussian or binary)
-    a, img_thresholded = threshold_image(img_original, thresholding_level, mode = 'mg')
+    a, img_thresholded = threshold_image(img_original, thresholding_level, mode = threshold_mode)
 
     # Takes the thresholded image and returns the rectangles around the particles
     stats = get_connected_components(img_thresholded, min_side=min_side, max_side=max_side, border = border)
