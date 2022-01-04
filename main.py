@@ -65,7 +65,11 @@ if __name__=='__main__':
     # This prints the number of fossils that were found
     print(stats.shape[0],'fossils were found')
 
-    np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol',comments='')
+    stats = np.c_[stats, np.zeros(stats.shape[0]).reshape(-1,1)]
+
+    print(stats)
+
+    np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
 
 
 
