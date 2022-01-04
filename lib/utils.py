@@ -1,3 +1,5 @@
+import copy
+
 import cv2 as cv
 import sys, math
 import numpy as np
@@ -43,14 +45,23 @@ def get_connected_components(img, min_side, max_side=None, border = 0):
     return stats
 
 
-def plt_rectangles(img, stats):
+def plt_rectangles(img, stats, color = (255,0,0)):
     try:
         img = cv.cvtColor(img, cv.COLOR_GRAY2RGB)
     except:
         pass
     for col in stats:
-        color = (255, 0, 0)
         cv.rectangle(img, (col[0], col[1]), (col[0] + col[2], col[1] + col[3]), color, 1)
+    return img
+
+def plt_rectangles_one_col(img, col, color = (255,0,0)):
+    img = copy.deepcopy(img)
+    try:
+        img = cv.cvtColor(img, cv.COLOR_GRAY2RGB)
+    except:
+        pass
+    print('heh',col)
+    cv.rectangle(img, (col[0], col[1]), (col[0] + col[2], col[1] + col[3]), color, 1)
     return img
 
 
@@ -58,14 +69,16 @@ def divide_image(img_original, stats, batch_name, mode = 'np'):
     len_stats = len(stats)
     for c, col in enumerate(stats):
         if mode == 'np':
-            np.save(f'lib/imgs_np/{batch_name}/{c}.npy', img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
+            np.save(f'lib/imgs_np/{batch_name}/{c}.npy', cut_out_of_image(img_original, col))
         elif mode == 'png':
-            # if c % 50 == 0:
-            #     print(f'saved to png {c} of {len_stats}')
-            cv.imwrite(f'lib/imgs_png/{batch_name}/{c}.png',img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]])
-            #plt.imshow(img_original[col[1]:col[1] + col[3], col[0]:col[0] + col[2]], 'gray', vmin=0, vmax=255)
-            #plt.savefig(f'imgs_np/{batch_name}/{c}.png', dpi=100)
-        # if c<2:
-        #     plt.imshow(img_original[col[1]:col[1]+col[3], col[0]:col[0]+col[2]], 'gray', vmin=0, vmax=255)
-        #     plt.show()
+            cv.imwrite(f'lib/imgs_png/{batch_name}/{c}.png', cut_out_of_image(img_original, col))
     return
+
+def cut_out_of_image(img, col, border = 0, img_size=(1e8,1e8)):
+    col = copy.deepcopy(col)
+    if border !=0:
+        col[0] = np.maximum(col[0] - border, 0)
+        col[1] = np.maximum(col[1] - border, 0)
+        col[2] = np.minimum(col[2] + 2 * border, img_size[1] - col[0])
+        col[3] = np.minimum(col[3] + 2 * border, img_size[0] - col[1])
+    return img[col[1]:col[1] + col[3], col[0]:col[0] + col[2]]

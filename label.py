@@ -1,22 +1,26 @@
-from lib.utils import threshold_image, get_connected_components
+import pandas as pd
+
+from lib.utils import threshold_image, get_connected_components, cut_out_of_image, plt_rectangles, plt_rectangles_one_col
 import cv2 as cv
-import sys, shutil
+import sys, shutil, json
 import numpy as np
 from matplotlib import pyplot as plt
 import os, msvcrt, copy
+import pandas as pd
 
 ''' THESE ARE PARAMETERS YOU CAN CHANGE  '''
 
+img_name = 'Original_Halved.tif'
 batch_name = 'test'
 figsize = 2
 
 '''             DOWN TO HERE            '''
 
 # This bit sets up a few initial variables:
-directory = os.fsencode(f'lib/imgs_np/{batch_name}')
-global cnt, next_num, cnt_prev, in_dir_files, err_count
-cnt, next_num, prev, err_count = 0, 0, 0, 0
-in_dir_files = os.listdir(directory)
+global cnt, err_count, stats_data
+cnt, prev, err_count = 0, 0, 0
+img_name_ext = img_name.split('.')[0]
+
 if os.path.isdir(f'imgs_classified/{batch_name}'):
     inputt = str(input(f'The folder {batch_name} already exists are you sure you want to continue? (y/n): ') or "y")
     if inputt=='n':
@@ -31,7 +35,15 @@ if os.path.isdir(f'imgs_classified/{batch_name}'):
             os.makedirs(f'imgs_classified_png/{batch_name}/')
         except:
             pass
+else:
+    os.makedirs(f'imgs_classified_png/{batch_name}')
+    os.makedirs(f'imgs_classified/{batch_name}')
 
+if os.path.isfile(f'lib/stats_in_use/{batch_name}_{img_name_ext}.json'):
+    with open(f'lib/stats_in_use/{batch_name}_{img_name_ext}.json','r') as f:
+        stats_data = json.load(f)
+else:
+    stats_data = {'rows_done': []}
 
 def press(event):
     '''
@@ -41,22 +53,14 @@ def press(event):
     If you press any other key that is valid as a filename (i.e. any latter or any number) it will
     return the character to be used for the classification folder name
     '''
-    global cnt, next_num, cnt_prev, err_count
-    print('press', event.key)
+    global cnt, err_count, stats_data
     cnt = event.key
     if cnt != 'z':
+        print('Classifying: ', event.key)
         plt.close()
     elif cnt == 'z':
-        try:
-            err_count += 1
-            err_num = len([i for i in os.listdir(f'lib/imgs_np/{batch_name}/') if ('err' in i)])
-            os.rename(f'imgs_classified/{batch_name}/{cnt_prev}/{next_num + 1}.npy',
-                      f'lib/imgs_np/{batch_name}/err_{err_num + 1}.npy')
-            os.remove(f'imgs_classified_png/{batch_name}/{cnt_prev}/{next_num + 1}.png')
-            print('moving and undoing')
-        except:
-            print('You have already done one undo, try a different key (sorry only one undo implemented)')
-
+        print('Undoing')
+        stats_data['rows_done'] = stats_data['rows_done'][:-1]
     return event.key
 
 '''
@@ -67,46 +71,56 @@ this script by accident).
 
 if __name__ == '__main__':
 
-    for c, file in enumerate(in_dir_files):
-        filename = os.fsdecode(file)
-        # This if statement checks that the file is a numpy array (which is how I save the fossil examples)
-        if filename.endswith(".npy"):
-            cnt = 0
-            fig, ax = plt.subplots(figsize=(figsize, figsize)) # Creating the figure
-            arr = np.load(str(directory, 'UTF8')+'/'+str(filename)) # Opening the numpy array
-            fig.canvas.mpl_connect('key_press_event', press) # Creates window for figure with function press waiting for key
+    stats = pd.read_csv(f'imgs_rectangled/{batch_name}/{img_name_ext}.txt', delimiter=' ')
+    stats = stats.to_numpy()
+    stats = np.array(stats.tolist())
+    img = cv.imread(cv.samples.findFile(f"imgs/{img_name}",0))
+    # img_rectangled = cv.imread(cv.samples.findFile(f"imgs_rectangled/{img_name}",0))
 
-            min, max = np.min(arr), np.max(arr)
-            # Make a LUT (Look-Up Table) to translate image values
-            LUT = np.zeros(256, dtype=np.uint8)
-            LUT[min:max + 1] = np.linspace(start=0, stop=255, num=(max - min) + 1, endpoint=True, dtype=np.uint8)
+    for c, col in enumerate(stats):
+        if c in stats_data['rows_done']:
+            continue
+        print('doing col', col)
+        arr = cut_out_of_image(img, col)
+        img_r_temp = plt_rectangles_one_col(img, col, color=(255, 0, 0))
+        arr_big = cut_out_of_image(img_r_temp, col, border = 100, img_size=img_r_temp.shape)
 
-            ax.imshow(LUT[arr]) # Fills the window with axes
-            plt.show() # Shows window
+        fig, ax = plt.subplots(figsize=(figsize, figsize)) # Creating the figure
+        fig.canvas.mpl_connect('key_press_event', press) # Creates window for figure with function press waiting for key
 
-            # If key pressed = z the function press undoes previous action and this closes that plot ready for the next image
-            if cnt != 'z':
-                plt.close()
-            # If key pressed = x the program exits
-            if cnt == 'x':
-                sys.exit('Operation terminated by user')
+        min, max = np.min(arr_big), np.max(arr_big)
+        # Make a LUT (Look-Up Table) to translate image values
+        LUT = np.zeros(256, dtype=np.uint8)
+        LUT[min:max + 1] = np.linspace(start=0, stop=255, num=(max - min) + 1, endpoint=True, dtype=np.uint8)
 
-            # Saves file according to classification
-            if not os.path.isdir(f'imgs_classified/{batch_name}/{cnt}'):
-                os.makedirs(f'imgs_classified/{batch_name}/{cnt}')
-            if not os.path.isdir(f'imgs_classified_png/{batch_name}/{cnt}'):
-                os.makedirs(f'imgs_classified_png/{batch_name}/{cnt}')
+        ax.imshow(LUT[arr_big]) # Fills the window with axes
+        plt.show() # Shows window
 
-            next_num = len(os.listdir(f'imgs_classified/{batch_name}/{cnt}'))
-            np.save(f'imgs_classified/{batch_name}/{cnt}/{next_num+1}.npy',arr)
-            cv.imwrite(f'imgs_classified_png/{batch_name}/{cnt}/{next_num+1}.png', arr)
-            # Removes original image
-            os.remove(str(directory, 'UTF8')+'/'+str(filename))
-            os.remove(f'lib/imgs_png/{batch_name}' + '/' + str(filename).split('.npy')[0]+'.png')
-            # Saves previous index in case we need to undo this
-            cnt_prev = copy.deepcopy(cnt)
+        # If key pressed = z the function press undoes previous action and this closes that plot ready for the next image
+        if cnt != 'z':
+            plt.close()
+        # If key pressed = x the program exits
+        if cnt == 'x':
+            with open(f'lib/stats_in_use/{batch_name}_{img_name_ext}.json', 'w+') as f:
+                json.dump(stats_data, f)
+            sys.exit('Operation terminated by user')
 
-print(f'Done {len(in_dir_files)} with {err_count} undoes.')
+        # Saves file according to classification
+        if not os.path.isdir(f'imgs_classified/{batch_name}/{cnt}'):
+            os.makedirs(f'imgs_classified/{batch_name}/{cnt}')
+        if not os.path.isdir(f'imgs_classified_png/{batch_name}/{cnt}'):
+            os.makedirs(f'imgs_classified_png/{batch_name}/{cnt}')
+
+        np.save(f'imgs_classified/{batch_name}/{cnt}/{c}.npy',arr)
+        cv.imwrite(f'imgs_classified_png/{batch_name}/{cnt}/{c}.png', arr)
+        # Removes original image
+        stats_data['rows_done'].append(c)
+        # Saves previous index in case we need to undo this
+
+with open(f'lib/stats_in_use/{batch_name}_{img_name_ext}.json', 'w+') as f:
+    json.dump(stats_data, f)
+
+print(f'Done {stats.shape[0]} with {err_count} undoes.')
 if err_count>0:
     print('If you want to fix the errors rerun the program without changing any settings.')
 
