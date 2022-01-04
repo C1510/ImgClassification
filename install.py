@@ -5,7 +5,6 @@ def get_package(package):
     subprocess.check_call([sys.executable, '-m', 'pip', 'install', f'{package}'])
 
 get_package('opencv-python')
-get_package('json')
 get_package('pandas')
 
 if not os.path.isdir(f'imgs/'):
