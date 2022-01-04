@@ -80,7 +80,6 @@ if __name__ == '__main__':
     for c, col in enumerate(stats):
         if c in stats_data['rows_done']:
             continue
-        print('doing col', col)
         arr = cut_out_of_image(img, col)
         img_r_temp = plt_rectangles_one_col(img, col, color=(255, 0, 0))
         arr_big = cut_out_of_image(img_r_temp, col, border = 100, img_size=img_r_temp.shape)

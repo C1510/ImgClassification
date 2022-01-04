@@ -60,7 +60,6 @@ def plt_rectangles_one_col(img, col, color = (255,0,0)):
         img = cv.cvtColor(img, cv.COLOR_GRAY2RGB)
     except:
         pass
-    print('heh',col)
     cv.rectangle(img, (col[0], col[1]), (col[0] + col[2], col[1] + col[3]), color, 1)
     return img
 
