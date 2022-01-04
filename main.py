@@ -13,7 +13,7 @@ max_side = 200
 border = 5
 img_name = 'Original_Halved.tif'
 batch_name = 'test'
-threshold_mode = 'bi' #'mg' or 'bi'
+threshold_mode = 'mg' #'mg' or 'bi'
 
 '''             DOWN TO HERE            '''
 
