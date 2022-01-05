@@ -72,6 +72,8 @@ this script by accident).
 '''
 
 def save_classified_images(stats, img):
+    # This function takes the stats file and an image, and saves your classifications to the
+    # imgs_classified and imgs_classified_png folders.
     for c, col in enumerate(stats):
         if int(col[-1])==-1:
             continue
@@ -94,7 +96,7 @@ if __name__ == '__main__':
     # img_rectangled = cv.imread(cv.samples.findFile(f"imgs_rectangled/{img_name}",0))
 
     for c, col in enumerate(stats):
-        if c in stats_data['rows_done']:
+        if int(col[-1])!=-1:
             continue
         arr = cut_out_of_image(img, col)
         img_r_temp = plt_rectangles_one_col(img, col, color=(255, 0, 0))
@@ -116,11 +118,14 @@ if __name__ == '__main__':
             plt.close()
         # If key pressed = x the program exits
         if cnt == 'x':
+            # Saves the classified data to the stats file
             with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
                 json.dump(stats_data, f)
+            # Takes the stats data and saves images into imgs_classified and imgs_classified_png
             np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats,
                        fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',
                        comments='')
+            # Takes the stats data and saves images into imgs_classified and imgs_classified_png
             save_classified_images(stats, img)
             sys.exit('Operation terminated by user')
 
@@ -128,11 +133,14 @@ if __name__ == '__main__':
         # Removes original image
         stats_data['rows_done'].append(c)
 
+# Saves the data about finished rows and the order in which they were done
 with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
     json.dump(stats_data, f)
 
-np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
-
+# Saves the classified data to the stats file
+np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt',
+           stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
+# Takes the stats data and saves images into imgs_classified and imgs_classified_png
 save_classified_images(stats, img)
 
 print(f'Done {stats.shape[0]} with {err_count} undoes.')
