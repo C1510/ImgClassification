@@ -12,7 +12,7 @@ import pandas as pd
 
 img_name = 'Original_Halved.tif'
 batch_name = 'test'
-figsize = 2
+figsize = 5
 
 '''             DOWN TO HERE            '''
 
@@ -26,16 +26,17 @@ if os.path.isdir(f'imgs_classified/{batch_name}_{img_name_no_ext}'):
     if inputt=='n':
         sys.exit('User terminated as folder already exists')
     else:
+        # This bit deletes the old folders in imgs_classified and imgs_classified_png then recreates them to make sure
         if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}'):
             os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}')
-        shutil.rmtree(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
-        os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
-        try:
+        else:
             shutil.rmtree(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/')
             os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/')
-        except:
-            pass
+        # We know that these folders exist (because the if statement in line 24 so we don't need to check again
+        shutil.rmtree(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
+        os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
 else:
+    # If the folders don't exist, create them
     os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/')
     os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
 
@@ -69,6 +70,20 @@ The main loop. It goes through all files in the folder given by batch_name
 The if __name__ == '__main__' clause just checks that this is the script that is running (and nothing else is calling
 this script by accident).
 '''
+
+def save_classified_images(stats, img):
+    for c, col in enumerate(stats):
+        if int(col[-1])==-1:
+            continue
+        # Saves file according to classification
+        if not os.path.isdir(f'imgs_classified/{batch_name}_{img_name_no_ext}/{col[-1]}'):
+            os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/{col[-1]}')
+        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{col[-1]}'):
+            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{col[-1]}')
+        np.save(f'imgs_classified/{batch_name}_{img_name_no_ext}/{col[-1]}/{c}.npy', cut_out_of_image(img, col))
+        cv.imwrite(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{col[-1]}/{c}.png', cut_out_of_image(img, col))
+    return
+
 
 if __name__ == '__main__':
 
@@ -106,16 +121,9 @@ if __name__ == '__main__':
             np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats,
                        fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',
                        comments='')
+            save_classified_images(stats, img)
             sys.exit('Operation terminated by user')
 
-        # Saves file according to classification
-        if not os.path.isdir(f'imgs_classified/{batch_name}_{img_name_no_ext}/{cnt}'):
-            os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/{cnt}')
-        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{cnt}'):
-            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{cnt}')
-
-        np.save(f'imgs_classified/{batch_name}_{img_name_no_ext}/{cnt}/{c}.npy',arr)
-        cv.imwrite(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{cnt}/{c}.png', arr)
         stats[c,-1]=int(cnt)
         # Removes original image
         stats_data['rows_done'].append(c)
@@ -125,6 +133,7 @@ with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{i
 
 np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
 
+save_classified_images(stats, img)
 
 print(f'Done {stats.shape[0]} with {err_count} undoes.')
 if err_count>0:

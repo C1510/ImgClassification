@@ -52,11 +52,12 @@ if __name__=='__main__':
     stats = get_connected_components(img_thresholded, min_side=min_side, max_side=max_side, border = border)
 
     # Divides the ORIGINAL IMAGE according to stats and saves the fossils as numpy arrays in imgs_np.
+    # CURRENTLY UNUSED IN THIS ITERATION
     # print('Saving individual fossils')
     # divide_image(img_original, stats, batch_name, mode = 'np')
     # divide_image(img_original, stats, batch_name, mode = 'png')
 
-    # Plots rectangles on the thresholded images and saves the rectangles in imgs_rectangles
+    # Plots rectangles on the thresholded images and saves the rectangles in imgs_rectangles/{batch_name}_{image_name_no_ext}
     print('Saving retangled image')
     img_rectangled = plt_rectangles(img_thresholded, stats)
     cv.imwrite(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.png', img_rectangled)
@@ -66,8 +67,10 @@ if __name__=='__main__':
     # This prints the number of fossils that were found
     print(stats.shape[0],'fossils were found')
 
+    #Adds an extra column to stats so we can put classifications in later. -1 represents unclassified values
     stats = np.c_[stats, (-1+np.zeros(stats.shape[0]).reshape(-1,1))]
 
+    # Saves stats in human-readable form to imgs_rectangles/{batch_name}_{image_name_no_ext}
     np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
 
 
