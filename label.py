@@ -12,6 +12,7 @@ import pandas as pd
 
 img_name = 'Original_Halved.tif'
 batch_name = 'test'
+username = 'mark'
 figsize = 5
 
 '''             DOWN TO HERE            '''
@@ -21,27 +22,15 @@ global cnt, err_count, stats_data, stats
 cnt, prev, err_count = 0, 0, 0
 img_name_no_ext = img_name.split('.')[0]
 
-if os.path.isdir(f'imgs_classified/{batch_name}_{img_name_no_ext}'):
-    inputt = str(input(f'The folder {batch_name}_{img_name_no_ext} already exists are you sure you want to continue? (y/n): ') or "y")
-    if inputt=='n':
-        sys.exit('User terminated as folder already exists')
-    else:
-        # This bit deletes the old folders in imgs_classified and imgs_classified_png then recreates them to make sure
-        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}'):
-            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}')
-        else:
-            shutil.rmtree(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/')
-            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/')
-        # We know that these folders exist (because the if statement in line 24 so we don't need to check again
-        shutil.rmtree(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
-        os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
+if os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_{username}'):
+    shutil.rmtree(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_{username}/')
+    os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_{username}/')
 else:
     # If the folders don't exist, create them
-    os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/')
-    os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/')
+    os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_{username}/')
 
-if os.path.isfile(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json'):
-    with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json','r') as f:
+if os.path.isfile(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}_{batch_name}_{img_name_no_ext}.json'):
+    with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}_{batch_name}_{img_name_no_ext}.json','r') as f:
         stats_data = json.load(f)
 else:
     stats_data = {'rows_done': []}
@@ -78,18 +67,18 @@ def save_classified_images(stats, img):
         if int(col[-1])==-1:
             continue
         # Saves file according to classification
-        if not os.path.isdir(f'imgs_classified/{batch_name}_{img_name_no_ext}/{col[-1]}'):
-            os.makedirs(f'imgs_classified/{batch_name}_{img_name_no_ext}/{col[-1]}')
-        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{col[-1]}'):
-            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{col[-1]}')
-        np.save(f'imgs_classified/{batch_name}_{img_name_no_ext}/{col[-1]}/{c}.npy', cut_out_of_image(img, col))
-        cv.imwrite(f'imgs_classified_png/{batch_name}_{img_name_no_ext}/{col[-1]}/{c}.png', cut_out_of_image(img, col))
+        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_{username}/{col[-1]}'):
+            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_{username}/{col[-1]}')
+        cv.imwrite(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_{username}/{col[-1]}/{c}.png', cut_out_of_image(img, col))
     return
 
 
 if __name__ == '__main__':
 
-    stats = pd.read_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name_no_ext}.txt', delimiter=' ')
+    if not os.path.isfile(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt'):
+        shutil.copy(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name_no_ext}.txt', f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt')
+
+    stats = pd.read_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt', delimiter=' ')
     stats = stats.to_numpy()
     stats = np.array(stats.tolist())
     img = cv.imread(cv.samples.findFile(f"imgs/{img_name}",0))
@@ -119,10 +108,10 @@ if __name__ == '__main__':
         # If key pressed = x the program exits
         if cnt == 'x':
             # Saves the classified data to the stats file
-            with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
+            with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
                 json.dump(stats_data, f)
             # Takes the stats data and saves images into imgs_classified and imgs_classified_png
-            np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats,
+            np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt', stats,
                        fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',
                        comments='')
             # Takes the stats data and saves images into imgs_classified and imgs_classified_png
@@ -132,18 +121,19 @@ if __name__ == '__main__':
         stats[c,-1]=int(cnt)
         # Removes original image
         stats_data['rows_done'].append(c)
+        print(stats_data)
 
 # Saves the data about finished rows and the order in which they were done
-with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
+with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
     json.dump(stats_data, f)
 
 # Saves the classified data to the stats file
-np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt',
+np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt',
            stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
 # Takes the stats data and saves images into imgs_classified and imgs_classified_png
 save_classified_images(stats, img)
 
-print(f'Done {stats.shape[0]} with {err_count} undoes.')
+print(f'{username} has done {stats.shape[0]} with {err_count} undoes.')
 if err_count>0:
     print('If you want to fix the errors rerun the program without changing any settings.')
 
