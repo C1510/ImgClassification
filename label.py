@@ -112,7 +112,7 @@ if __name__ == '__main__':
             with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json', 'w+') as f:
                 json.dump(stats_data, f)
             # Takes the stats data and saves images into imgs_classified and imgs_classified_png
-            stats.to_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', sep = ' ')
+            stats.to_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', sep = ' ', index=False)
             # np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', stats,
             #            fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',
             #            comments='')
@@ -131,7 +131,7 @@ with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json
 # Saves the classified data to the stats file
 # np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt',
 #            stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
-stats.to_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', sep = ' ')
+stats.to_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', sep = ' ', index=False)
 # Takes the stats data and saves images into imgs_classified and imgs_classified_png
 save_classified_images(stats, img)
 
