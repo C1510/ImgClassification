@@ -29,8 +29,8 @@ else:
     # If the folders don't exist, create them
     os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_{username}/')
 
-if os.path.isfile(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}_{batch_name}_{img_name_no_ext}.json'):
-    with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}_{batch_name}_{img_name_no_ext}.json','r') as f:
+if os.path.isfile(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json'):
+    with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json','r') as f:
         stats_data = json.load(f)
 else:
     stats_data = {'rows_done': []}
@@ -75,10 +75,10 @@ def save_classified_images(stats, img):
 
 if __name__ == '__main__':
 
-    if not os.path.isfile(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt'):
-        shutil.copy(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name_no_ext}.txt', f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt')
+    if not os.path.isfile(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt'):
+        shutil.copy(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name_no_ext}.txt', f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt')
 
-    stats = pd.read_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt', delimiter=' ')
+    stats = pd.read_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', delimiter=' ')
     stats = stats.to_numpy()
     stats = np.array(stats.tolist())
     img = cv.imread(cv.samples.findFile(f"imgs/{img_name}",0))
@@ -108,10 +108,10 @@ if __name__ == '__main__':
         # If key pressed = x the program exits
         if cnt == 'x':
             # Saves the classified data to the stats file
-            with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
+            with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json', 'w+') as f:
                 json.dump(stats_data, f)
             # Takes the stats data and saves images into imgs_classified and imgs_classified_png
-            np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt', stats,
+            np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', stats,
                        fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',
                        comments='')
             # Takes the stats data and saves images into imgs_classified and imgs_classified_png
@@ -124,11 +124,11 @@ if __name__ == '__main__':
         print(stats_data)
 
 # Saves the data about finished rows and the order in which they were done
-with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}_{batch_name}_{img_name_no_ext}.json', 'w+') as f:
+with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json', 'w+') as f:
     json.dump(stats_data, f)
 
 # Saves the classified data to the stats file
-np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}_{img_name_no_ext}.txt',
+np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt',
            stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
 # Takes the stats data and saves images into imgs_classified and imgs_classified_png
 save_classified_images(stats, img)
