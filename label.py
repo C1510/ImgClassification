@@ -50,7 +50,7 @@ def press(event):
         plt.close()
     elif cnt == 'z':
         print('Undoing')
-        stats[stats_data['rows_done'][-1],-1]=-1
+        stats.iloc[stats_data['rows_done'][-1], -1]='-1'
         stats_data['rows_done'] = stats_data['rows_done'][:-1]
     return event.key
 
@@ -63,8 +63,8 @@ this script by accident).
 def save_classified_images(stats, img):
     # This function takes the stats file and an image, and saves your classifications to the
     # imgs_classified and imgs_classified_png folders.
-    for c, col in enumerate(stats):
-        if int(col[-1])==-1:
+    for c, col in stats.iterrows():
+        if str(col[-1])=='-1':
             continue
         # Saves file according to classification
         if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_{username}/{col[-1]}'):
@@ -79,13 +79,14 @@ if __name__ == '__main__':
         shutil.copy(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name_no_ext}.txt', f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt')
 
     stats = pd.read_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', delimiter=' ')
-    stats = stats.to_numpy()
-    stats = np.array(stats.tolist())
+    # stats = stats.to_numpy()
+    # stats = np.array(stats.tolist())
+    stats['class']=stats['class'].astype(str)
     img = cv.imread(cv.samples.findFile(f"imgs/{img_name}",0))
     # img_rectangled = cv.imread(cv.samples.findFile(f"imgs_rectangled/{img_name}",0))
 
-    for c, col in enumerate(stats):
-        if int(col[-1])!=-1:
+    for c, col in stats.iterrows():
+        if str(col['class'])!='-1':
             continue
         arr = cut_out_of_image(img, col)
         img_r_temp = plt_rectangles_one_col(img, col, color=(255, 0, 0))
@@ -111,14 +112,15 @@ if __name__ == '__main__':
             with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json', 'w+') as f:
                 json.dump(stats_data, f)
             # Takes the stats data and saves images into imgs_classified and imgs_classified_png
-            np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', stats,
-                       fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',
-                       comments='')
+            stats.to_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', sep = ' ')
+            # np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', stats,
+            #            fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',
+            #            comments='')
             # Takes the stats data and saves images into imgs_classified and imgs_classified_png
             save_classified_images(stats, img)
             sys.exit('Operation terminated by user')
 
-        stats[c,-1]=int(cnt)
+        stats.iloc[c,-1]=str(cnt)
         # Removes original image
         stats_data['rows_done'].append(c)
 
@@ -127,8 +129,9 @@ with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json
     json.dump(stats_data, f)
 
 # Saves the classified data to the stats file
-np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt',
-           stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
+# np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt',
+#            stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
+stats.to_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', sep = ' ')
 # Takes the stats data and saves images into imgs_classified and imgs_classified_png
 save_classified_images(stats, img)
 
