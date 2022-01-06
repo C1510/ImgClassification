@@ -121,7 +121,6 @@ if __name__ == '__main__':
         stats[c,-1]=int(cnt)
         # Removes original image
         stats_data['rows_done'].append(c)
-        print(stats_data)
 
 # Saves the data about finished rows and the order in which they were done
 with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json', 'w+') as f:
