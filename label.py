@@ -45,14 +45,18 @@ def press(event):
     '''
     global cnt, err_count, stats_data, stats
     cnt = event.key
-    if cnt != 'z':
-        print('Classifying: ', event.key)
-        plt.close()
-    elif cnt == 'z':
-        print('Undoing')
-        stats.iloc[stats_data['rows_done'][-1], -1]='-1'
-        stats_data['rows_done'] = stats_data['rows_done'][:-1]
-    return event.key
+    try:
+        if cnt != 'z':
+            print('Classifying: ', event.key)
+            plt.close()
+        elif cnt == 'z':
+            print('Undoing')
+            stats.iloc[stats_data['rows_done'][-1], -1]='-1'
+            stats_data['rows_done'] = stats_data['rows_done'][:-1]
+        return event.key
+    except:
+        return '-1'
+
 
 '''
 The main loop. It goes through all files in the folder given by batch_name
