@@ -83,6 +83,7 @@ if __name__ == '__main__':
         shutil.copy(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name_no_ext}.txt', f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt')
 
     stats = pd.read_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/stats_{username}.txt', delimiter=' ')
+    stats_length = stats.shape[0]
     # stats = stats.to_numpy()
     # stats = np.array(stats.tolist())
     stats['class']=stats['class'].astype(str)
@@ -127,6 +128,8 @@ if __name__ == '__main__':
         stats.iloc[c,-1]=str(cnt)
         # Removes original image
         stats_data['rows_done'].append(c)
+        if c%10 == 0:
+            print(f'Done {c} of {stats_length}')
 
 # Saves the data about finished rows and the order in which they were done
 with open(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/track_{username}.json', 'w+') as f:
