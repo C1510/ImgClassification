@@ -3,6 +3,7 @@ import cv2 as cv
 import sys, os, shutil
 import numpy as np
 from matplotlib import pyplot as plt
+import pandas as pd
 
 
 ''' THESE ARE PARAMETERS YOU CAN CHANGE  '''
@@ -14,6 +15,7 @@ border = 5
 img_name = 'Original_Halved.tif'
 batch_name = 'test'
 threshold_mode = 'mg' #'mg' or 'bi'
+save_noclass = True
 
 '''             DOWN TO HERE            '''
 
@@ -31,6 +33,16 @@ else:
     else:
         shutil.rmtree(f'imgs_rectangled/{batch_name}_{img_name_no_ext}')
         os.makedirs(f'imgs_rectangled/{batch_name}_{img_name_no_ext}')
+
+def save_classified_images_no_classification(stats, img):
+    # This function takes the stats file and an image, and saves your classifications to the
+    # imgs_classified and imgs_classified_png folders.
+    for c, col in stats.iterrows():
+        # Saves file according to classification
+        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_noclass/'):
+            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_noclass/')
+        cv.imwrite(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_noclass/{c}.png', cut_out_of_image(img, col))
+    return
 
 '''
 The main loop.
@@ -73,5 +85,7 @@ if __name__=='__main__':
     # Saves stats in human-readable form to imgs_rectangles/{batch_name}_{image_name_no_ext}
     np.savetxt(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', stats, fmt='%.0f', delimiter=' ', header='left_top_x left_top_y x_length y_length vol class',comments='')
 
-
+    if save_noclass:
+        stats2 = pd.read_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', delimiter=' ')
+        save_classified_images_no_classification(stats2, img_original)
 
