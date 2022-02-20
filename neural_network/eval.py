@@ -52,7 +52,7 @@ test_loader, test_dataset = get_loader(
     split=0.0,
     )
 
-num_classes = test_dataset.classes
+num_classes = 3
 classes_list = [os.path.basename(os.path.normpath(i)) for i in test_dataset.dirs]
 classes=dict(zip(classes_list,[i for i in range(len(classes_list))]))
 
@@ -83,6 +83,7 @@ class Net(nn.Module):
 net = Net()
 net.load_state_dict(torch.load(PATH))
 print('loading success')
+net = net.to(device)
 
 if loss != 'BCE':
     criterion = nn.CrossEntropyLoss()
@@ -99,25 +100,30 @@ def test_it(loader, set = 'train'):
             labels = labels.to(device)
             images = images.to(device)
             outputs = net(images)
+            outputs = torch.argmax(outputs,dim=1).cpu()
             labels_out.append(outputs)
     return labels_out
-
 
 labels_out = test_it(test_loader, set = 'test')
 labels = torch.cat(labels_out,dim = 0).reshape(-1)
 df = test_dataset.df
-df['labelled']=list(labels)
+print(df)
+df['labelled']=list([i.item() for i in labels.reshape(-1)])
+df.reset_index(inplace=True)
+print(df)
 
 def move_files(stats):
     # This function takes the stats file and an image, and saves your classifications to the
     # imgs_classified and imgs_classified_png folders.
     for c, col in stats.iterrows():
         # Saves file according to classification
+        print('heh',col['index'], col['labelled'])
         if not os.path.exists(data_folder_out):
             os.makedirs(data_folder_out)
         class_ = col['labelled']
         if not os.path.exists(data_folder_out+str(class_)):
             os.makedirs(data_folder_out+str(class_))
-        shutil.copy(col.index, data_folder_out+str(class_)+'/'+str(col)+'.png')
+        print(data_folder_out+str(class_)+'/'+str(c)+'.png')
+        shutil.copy(col['index'], data_folder_out+str(class_)+'/'+str(c)+'.png')
 
 move_files(df)
