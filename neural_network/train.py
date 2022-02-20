@@ -5,6 +5,7 @@ from dataloader import get_loader
 from dataloader import *
 from custom_resnet import resnet18
 from torch.optim.lr_scheduler import ReduceLROnPlateau
+import torch.optim as optim
 
 ###########################################
 
@@ -23,7 +24,7 @@ data_folder = f'../imgs_classified_png/{batch_name}_{img_name_}_{username}/'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 PATH = model_path+str(model_no)+'.pth'
 PATH = f'{model_path}/{batch_name}_{img_name_}_{username}_{model_no}.pth'
-data_folder = 'mark/'
+loss = 'ce'
 
 transform = transforms.Compose(
         [transforms.Resize((100, 100)),
@@ -36,11 +37,6 @@ transform = transforms.Compose(
          #transforms.RandomPerspective(distortion_scale=0.6, p=1.0)
         ]
     )
-
-# transform = transforms.Compose(
-#         [transforms.ToTensor(),
-#          transforms.Grayscale()]
-#     )
 
 train_loader, train_dataset = get_loader(
         data_folder, transform=transform,
@@ -61,7 +57,6 @@ test_loader, test_dataset = get_loader(
     train=False,
     split=0.9,
     )
-
 
 num_classes = train_dataset.classes
 classes_list = [os.path.basename(os.path.normpath(i)) for i in train_dataset.dirs]
@@ -90,23 +85,13 @@ class Net(nn.Module):
         x = self.fc3(x)
         return x
 
-if True:
-    net = Net()
-    net.to(device)
-    print(net)
-    for n, p in net.named_parameters():
-        print(n, p.device)
-else:
-    net = resnet18(pretrained=False, num_classes=num_classes, inchans = 1)
+net = Net()
+net.to(device)
 
-import torch.optim as optim
-
-loss = 'asd'
 if loss != 'BCE':
     criterion = nn.CrossEntropyLoss()
 else:
     criterion = nn.BCEWithLogitsLoss()
-
 
 optimizer = optim.Adam(net.parameters(), lr=0.01)
 
@@ -124,6 +109,7 @@ def test_it(loader, set = 'train'):
             correct += (predicted == labels).sum().item()
     print('Accuracy of the network on the %s images: %d %%' % (set,
             100 * correct / total))
+    return correct/total
 
 scheduler = ReduceLROnPlateau(optimizer, 'min')
 for epoch in range(epochs):  # loop over the dataset multiple times
@@ -145,8 +131,10 @@ for epoch in range(epochs):  # loop over the dataset multiple times
     scheduler.step(loss)
     if epoch % 1 == 0:    # print every 2000 mini-batches
         with torch.no_grad():
-            test_it(test_loader, set = 'test')
-            test_it(train_loader, set = 'train')
+            train_acc = test_it(train_loader, set='train')
+            test_acc = test_it(test_loader, set = 'test')
+            if train_acc == 1:
+                break
         print('[%d, %5d] loss: %.3f' %
               (epoch + 1, i + 1, running_loss))
         running_loss = 0.0
@@ -156,39 +144,32 @@ print('Finished Training')
 
 torch.save(net.state_dict(), PATH)
 
-# net = Net()
-# net.load_state_dict(torch.load(PATH))
-
-
-correct = 0
-total = 0
-with torch.no_grad():
-    for data in test_loader:
-        images, labels = data
-        outputs = net(images)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
-
-print('Accuracy of the network on the 10000 test images: %d %%' % (
-    100 * correct / total))
-
-# Hmmm, what are the classes that performed well, and the classes that did
-# not perform well:
-
-class_correct = list(0. for i in range(num_classes))
-class_total = list(0. for i in range(num_classes))
-with torch.no_grad():
-    for (images, labels) in test_loader:
-        outputs = net(images)
-        _, predicted = torch.max(outputs, 1)
-        c = (predicted == labels).squeeze()
-        for i in range(4):
-            label = labels[i]
-            class_correct[label] += c[i].item()
-            class_total[label] += 1
-
-
-for i in range(10):
-    print('Accuracy of %5s : %2d %%' % (
-        classes[i], 100 * class_correct[i] / class_total[i]))
+# correct = 0
+# total = 0
+# with torch.no_grad():
+#     for data in test_loader:
+#         images, labels = data
+#         outputs = net(images)
+#         _, predicted = torch.max(outputs.data, 1)
+#         total += labels.size(0)
+#         correct += (predicted == labels).sum().item()
+#
+# print('Accuracy of the network on the 10000 test images: %d %%' % (
+#     100 * correct / total))
+#
+# class_correct = list(0. for i in range(num_classes))
+# class_total = list(0. for i in range(num_classes))
+# with torch.no_grad():
+#     for (images, labels) in test_loader:
+#         outputs = net(images)
+#         _, predicted = torch.max(outputs, 1)
+#         c = (predicted == labels).squeeze()
+#         for i in range(4):
+#             label = labels[i]
+#             class_correct[label] += c[i].item()
+#             class_total[label] += 1
+#
+#
+# for i in range(10):
+#     print('Accuracy of %5s : %2d %%' % (
+#         classes[i], 100 * class_correct[i] / class_total[i]))

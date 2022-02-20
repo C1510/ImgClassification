@@ -24,7 +24,7 @@ data_folder = f'../imgs_classified_png/{batch_name}_{img_name_}_noclass/'
 data_folder_out = f'classified_png/{batch_name}_{img_name_}_{username}_{model_no}/'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 PATH = f'{model_path}/{batch_name}_{img_name_}_{username}_{model_no}.pth'
-data_folder = 'mark/'
+loss = 'ce'
 
 transform = transforms.Compose(
         [transforms.Resize((100, 100)),
@@ -51,7 +51,6 @@ test_loader, test_dataset = get_loader(
     train=False,
     split=0.0,
     )
-
 
 num_classes = test_dataset.classes
 classes_list = [os.path.basename(os.path.normpath(i)) for i in test_dataset.dirs]
@@ -80,18 +79,11 @@ class Net(nn.Module):
         x = self.fc3(x)
         return x
 
-if True:
-    net = Net()
-    net.to(device)
-    print(net)
-    for n, p in net.named_parameters():
-        print(n, p.device)
-else:
-    net = resnet18(pretrained=False, num_classes=num_classes, inchans = 1)
 
-import torch.optim as optim
+net = Net()
+net.load_state_dict(torch.load(PATH))
+print('loading success')
 
-loss = 'asd'
 if loss != 'BCE':
     criterion = nn.CrossEntropyLoss()
 else:

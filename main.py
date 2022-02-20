@@ -39,9 +39,9 @@ def save_classified_images_no_classification(stats, img):
     # imgs_classified and imgs_classified_png folders.
     for c, col in stats.iterrows():
         # Saves file according to classification
-        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_noclass/'):
-            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_noclass/')
-        cv.imwrite(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_noclass/{c}.png', cut_out_of_image(img, col))
+        if not os.path.isdir(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_noclass/-1/'):
+            os.makedirs(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_noclass/-1/')
+        cv.imwrite(f'imgs_classified_png/{batch_name}_{img_name_no_ext}_noclass/-1/{c}.png', cut_out_of_image(img, col))
     return
 
 '''
