@@ -16,6 +16,7 @@ loss = 'CE'
 img_name = 'Original_Halved.tif'
 batch_name = 'test'
 username = 'mark'
+num_classes = 3
 
 ###########################################
 
@@ -52,7 +53,6 @@ test_loader, test_dataset = get_loader(
     split=0.0,
     )
 
-num_classes = 3
 classes_list = [os.path.basename(os.path.normpath(i)) for i in test_dataset.dirs]
 classes=dict(zip(classes_list,[i for i in range(len(classes_list))]))
 
