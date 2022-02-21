@@ -6,6 +6,8 @@ def get_package(package):
 
 get_package('opencv-python')
 get_package('pandas')
+get_package('torch torchvision torchaudio')
+
 
 if not os.path.isdir(f'imgs/'):
     os.makedirs(f'imgs/')
