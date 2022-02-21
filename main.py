@@ -1,3 +1,5 @@
+import copy
+
 from lib.utils import threshold_image, get_connected_components, plt_rectangles, divide_image, cut_out_of_image
 import cv2 as cv
 import sys, os, shutil
@@ -56,6 +58,7 @@ if __name__=='__main__':
 
     # This reads the file img_name and outputs a numpy array for manipulation
     img_original = cv.imread(cv.samples.findFile(f"imgs/{img_name}",0))
+    img_original_copy = copy.deepcopy(img_original)
 
     # This thresholds the image at the amount thresholding_level, with mode = 'mg' or 'bi' (mean gaussian or binary)
     a, img_thresholded = threshold_image(img_original, thresholding_level, mode = threshold_mode)
@@ -87,5 +90,5 @@ if __name__=='__main__':
 
     if save_noclass:
         stats2 = pd.read_csv(f'imgs_rectangled/{batch_name}_{img_name_no_ext}/{img_name.split(".")[0]}.txt', delimiter=' ')
-        save_classified_images_no_classification(stats2, img_original)
+        save_classified_images_no_classification(stats2, img_original_copy)
 
