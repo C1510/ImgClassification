@@ -19,3 +19,7 @@ if not os.path.isdir(f'imgs_classified_png/'):
     os.makedirs(f'imgs_classified_png/')
 if not os.path.isdir(f'imgs_rectangled/'):
     os.makedirs(f'imgs_rectangled/')
+if not os.path.isdir(f'neural_network/models/'):
+    os.makedirs(f'neural_network/models/')
+if not os.path.isdir(f'neural_network/classified_png/'):
+    os.makedirs(f'neural_network/classified_png/')
