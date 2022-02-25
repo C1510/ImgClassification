@@ -12,6 +12,7 @@ import shutil
 epochs=100
 model_path = './models'
 model_no = 0
+model_name = ''
 loss = 'CE'
 img_name = 'Original_Halved.tif'
 batch_name = 'test'
@@ -24,7 +25,7 @@ img_name_ = img_name.split('.')[0]
 data_folder = f'../imgs_classified_png/{batch_name}_{img_name_}_noclass/'
 data_folder_out = f'classified_png/{batch_name}_{img_name_}_{username}_{model_no}/'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-PATH = f'{model_path}/{batch_name}_{img_name_}_{username}_{model_no}.pth'
+PATH = f'{model_path}/{model_name}.pth'
 loss = 'ce'
 
 transform = transforms.Compose(
