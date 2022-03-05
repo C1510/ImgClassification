@@ -13,9 +13,9 @@ epochs=100
 model_path = './models'
 model_no = 0
 loss = 'CE'
-img_name = 'Original_Halved.tif'
-batch_name = 'test'
-username = 'mark'
+img_name = 'TrainingData2.tif'
+batch_name = 'Test1'
+username = 'Ken'
 
 ###########################################
 
@@ -32,7 +32,7 @@ transform = transforms.Compose(
          #transforms.ColorJitter(brightness=0.5, contrast=0.5),
          #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
          transforms.Grayscale(),
-         # transforms.Normalize(0.5,0.5),
+         transforms.Normalize(0.5,0.5),
          transforms.RandomRotation(180),
          #transforms.RandomPerspective(distortion_scale=0.6, p=1.0)
         ]
@@ -102,7 +102,6 @@ class Net(nn.Module):
         x = self.pool(F.relu(self.conv1(x)))
         x = self.pool2(F.relu(self.conv2(x)))
         x = self.pool3(F.relu(self.conv3(x)))
-        print(x.shape)
         x = x.view(-1, 12*6*6)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
@@ -117,7 +116,7 @@ if loss != 'BCE':
 else:
     criterion = nn.BCEWithLogitsLoss()
 
-optimizer = optim.Adam(net.parameters(), lr=0.01)
+optimizer = optim.Adam(net.parameters(), lr=0.001)
 
 def test_it(loader, set = 'train'):
     correct = 0
@@ -152,7 +151,7 @@ for epoch in range(epochs):  # loop over the dataset multiple times
 
         # print statistics
         running_loss += loss.item()
-    scheduler.step(loss)
+    # scheduler.step(loss)
     if epoch % 1 == 0:    # print every 2000 mini-batches
         with torch.no_grad():
             train_acc = test_it(train_loader, set='train')
