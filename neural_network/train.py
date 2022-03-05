@@ -16,6 +16,7 @@ loss = 'CE'
 img_name = 'TrainingData2.tif'
 batch_name = 'Test1'
 username = 'Ken'
+schedule = False
 
 ###########################################
 
@@ -151,7 +152,8 @@ for epoch in range(epochs):  # loop over the dataset multiple times
 
         # print statistics
         running_loss += loss.item()
-    # scheduler.step(loss)
+    if schedule:
+        scheduler.step(loss)
     if epoch % 1 == 0:    # print every 2000 mini-batches
         with torch.no_grad():
             train_acc = test_it(train_loader, set='train')
