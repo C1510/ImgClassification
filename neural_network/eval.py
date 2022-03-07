@@ -63,28 +63,40 @@ import torch.nn.functional as F
 class Net(nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv2d(1, 96, (9, 9), (2, 2))
+        self.conv1 = nn.Conv2d(1, 48, (5, 5), (1, 1))
         self.pool = nn.MaxPool2d(3, 3)
-        self.conv2 = nn.Conv2d(96, 12, (3, 3))
+        self.conv2 = nn.Conv2d(48, 36, (3, 3))
         self.pool2 = nn.MaxPool2d(2, 2)
-        self.fc1 = nn.Linear(12*6*6, 120)
-        self.fc2 = nn.Linear(120, 84)
+        self.conv3 = nn.Conv2d(36, 12, (3, 3))
+        self.pool3 = nn.MaxPool2d(2, 2)
+        self.fc1 = nn.Linear(12*6*6, 256)
+        self.fc2 = nn.Linear(256, 84)
         self.fc3 = nn.Linear(84, num_classes)
+        self.bn1 = nn.BatchNorm2d(48)
+        self.bn2 = nn.BatchNorm2d(36)
+        self.bn3 = nn.BatchNorm2d(12)
+        self.bn4 = nn.BatchNorm1d(12*6*6)
+        self.bn5 = nn.BatchNorm1d(256)
+        self.bn6 = nn.BatchNorm1d(84)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
+        x = self.bn1(x)
         x = self.pool2(F.relu(self.conv2(x)))
+        x = self.bn2(x)
+        x = self.pool3(F.relu(self.conv3(x)))
+        x = self.bn3(x)
         x = x.view(-1, 12*6*6)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
 
-
 net = Net()
 net.load_state_dict(torch.load(PATH))
 print('loading success')
 net = net.to(device)
+net.eval()
 
 if loss != 'BCE':
     criterion = nn.CrossEntropyLoss()

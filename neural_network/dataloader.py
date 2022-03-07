@@ -2,13 +2,13 @@ import os,sys, random  # when loading file paths
 import pandas as pd  # for lookup in annotation file
 import torch
 from torch.nn.utils.rnn import pad_sequence  # pad batch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, Dataset, WeightedRandomSampler
 from PIL import Image  # Load img
 import torchvision.transforms as transforms
 import numpy as np
 
 class ImageDataset(Dataset):
-    def __init__(self, root_dir, transform=None,split=0.9,train=True):
+    def __init__(self, root_dir, transform=None,split=0.9,train=True, mode = None):
         self.split = split
         self.train=train
         self.root_dir = root_dir
@@ -24,9 +24,10 @@ class ImageDataset(Dataset):
         self.class_balance = [len(l) for l in self.img_list]
         print('Classes',self.class_balance)
         self.classes = len(self.img_list)
-        self.img_list = self.train_split(self.img_list)
+        self.img_list = self.train_split(self.img_list, mode = mode)
         self.img_dict = {}
         self.flat_img=[]
+        self.split=split
 
         for i,img_list in enumerate(self.img_list):
             for j in img_list:
@@ -39,12 +40,14 @@ class ImageDataset(Dataset):
         print('Dataset size:',len(self.df))
 
 
-    def train_split(self,img_list):
+    def train_split(self,img_list, mode = 'min'):
         min_class=min(self.class_balance)
         train = int(np.ceil(min_class *self.split))
         img_list_train=[]
         img_list_test=[]
         for i in img_list:
+            if mode is not None:
+                train = int(np.floor(self.split*len(i)))
             random.shuffle(i)
             img_list_train.append(i[:train])
             img_list_test.append(i[train:])
@@ -100,18 +103,30 @@ def get_loader(
     shuffle=True,
     pin_memory=False,
     train=True,
-    split=0.9
+    split=0.9,
+    sampler = None
 ):
-    dataset = ImageDataset(root_folder, transform=transform,split=split,train=train)
+    dataset = ImageDataset(root_folder, transform=transform,split=split,train=train, mode = sampler)
 
-    loader = DataLoader(
-        dataset=dataset,
-        batch_size=batch_size,
-        num_workers=num_workers,
-        shuffle=shuffle,
-        pin_memory=pin_memory,
-        collate_fn=MyCollate(classes=dataset.classes),
-    )
+    if sampler is not None:
+        sampler = WeightedRandomSampler([1/dataset.class_balance[list(dataset.df.iloc[i]).index(1.0)] for i in range(len(dataset.df))], len(dataset.df),replacement=False)
+        loader = DataLoader(
+            dataset=dataset,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            pin_memory=pin_memory,
+            collate_fn=MyCollate(classes=dataset.classes),
+            sampler=sampler
+        )
+    else:
+        loader = DataLoader(
+            dataset=dataset,
+            batch_size=batch_size,
+            num_workers=num_workers,
+            pin_memory=pin_memory,
+            collate_fn=MyCollate(classes=dataset.classes),
+            shuffle=shuffle
+        )
 
     return loader, dataset
 

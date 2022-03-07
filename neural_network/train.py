@@ -4,7 +4,7 @@ import torchvision.transforms as transforms
 from dataloader import get_loader
 from dataloader import *
 from custom_resnet import resnet18
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import ReduceLROnPlateau, StepLR
 import torch.optim as optim
 
 ###########################################
@@ -16,7 +16,8 @@ loss = 'CE'
 img_name = 'TrainingData2.tif'
 batch_name = 'Test1'
 username = 'Ken'
-schedule = False
+schedule = True
+sampler = None #None, 'weightedrandom'
 
 ###########################################
 
@@ -35,28 +36,32 @@ transform = transforms.Compose(
          transforms.Grayscale(),
          transforms.Normalize(0.5,0.5),
          transforms.RandomRotation(180),
+         #transforms.RandomHorizontalFlip(),
+         #transforms.RandomVerticalFlip(),
          #transforms.RandomPerspective(distortion_scale=0.6, p=1.0)
         ]
     )
 
 train_loader, train_dataset = get_loader(
         data_folder, transform=transform,
-    batch_size=64,
+    batch_size=128,
     num_workers=0,
     shuffle=True,
     pin_memory=False,
     train=True,
     split=0.9,
+    sampler = sampler
     )
 
 test_loader, test_dataset = get_loader(
         data_folder, transform=transform,
-    batch_size=64,
+    batch_size=128,
     num_workers=0,
     shuffle=True,
     pin_memory=False,
     train=False,
     split=0.9,
+    sampler = sampler
     )
 
 num_classes = train_dataset.classes
@@ -66,43 +71,32 @@ classes=dict(zip(classes_list,[i for i in range(len(classes_list))]))
 import torch.nn as nn
 import torch.nn.functional as F
 
-# class Net(nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#         self.conv1 = nn.Conv2d(1, 96, (9, 9), (2, 2))
-#         self.pool = nn.MaxPool2d(3, 3)
-#         self.conv2 = nn.Conv2d(96, 12, (3, 3))
-#         self.pool2 = nn.MaxPool2d(2, 2)
-#         self.fc1 = nn.Linear(12*6*6, 120)
-#         self.fc2 = nn.Linear(120, 84)
-#         self.fc3 = nn.Linear(84, num_classes)
-#
-#     def forward(self, x):
-#         x = self.pool(F.relu(self.conv1(x)))
-#         x = self.pool2(F.relu(self.conv2(x)))
-#         x = x.view(-1, 12*6*6)
-#         x = F.relu(self.fc1(x))
-#         x = F.relu(self.fc2(x))
-#         x = self.fc3(x)
-#         return x
-
 class Net(nn.Module):
     def __init__(self):
         super().__init__()
         self.conv1 = nn.Conv2d(1, 48, (5, 5), (1, 1))
         self.pool = nn.MaxPool2d(3, 3)
-        self.conv2 = nn.Conv2d(48, 12, (3, 3))
+        self.conv2 = nn.Conv2d(48, 36, (3, 3))
         self.pool2 = nn.MaxPool2d(2, 2)
-        self.conv3 = nn.Conv2d(12, 12, (3, 3))
+        self.conv3 = nn.Conv2d(36, 12, (3, 3))
         self.pool3 = nn.MaxPool2d(2, 2)
-        self.fc1 = nn.Linear(12*6*6, 120)
-        self.fc2 = nn.Linear(120, 84)
+        self.fc1 = nn.Linear(12*6*6, 256)
+        self.fc2 = nn.Linear(256, 84)
         self.fc3 = nn.Linear(84, num_classes)
+        self.bn1 = nn.BatchNorm2d(48)
+        self.bn2 = nn.BatchNorm2d(36)
+        self.bn3 = nn.BatchNorm2d(12)
+        self.bn4 = nn.BatchNorm1d(12*6*6)
+        self.bn5 = nn.BatchNorm1d(256)
+        self.bn6 = nn.BatchNorm1d(84)
 
     def forward(self, x):
         x = self.pool(F.relu(self.conv1(x)))
+        x = self.bn1(x)
         x = self.pool2(F.relu(self.conv2(x)))
+        x = self.bn2(x)
         x = self.pool3(F.relu(self.conv3(x)))
+        x = self.bn3(x)
         x = x.view(-1, 12*6*6)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
@@ -117,9 +111,10 @@ if loss != 'BCE':
 else:
     criterion = nn.BCEWithLogitsLoss()
 
-optimizer = optim.Adam(net.parameters(), lr=0.001)
+optimizer = optim.Adam(net.parameters(), lr=0.001,weight_decay=1e-5)
 
 def test_it(loader, set = 'train'):
+    net.eval()
     correct = 0
     total = 0
     with torch.no_grad():
@@ -136,7 +131,9 @@ def test_it(loader, set = 'train'):
     return correct/total
 
 scheduler = ReduceLROnPlateau(optimizer, 'min')
+
 for epoch in range(epochs):  # loop over the dataset multiple times
+    net.train()
     running_loss = 0.0
     for i, (inputs, labels) in enumerate(train_loader):
         labels = labels.reshape(-1).to(device)
@@ -149,8 +146,6 @@ for epoch in range(epochs):  # loop over the dataset multiple times
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
-
-        # print statistics
         running_loss += loss.item()
     if schedule:
         scheduler.step(loss)
