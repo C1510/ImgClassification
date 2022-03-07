@@ -34,7 +34,7 @@ transform = transforms.Compose(
          #transforms.ColorJitter(brightness=0.5, contrast=0.5),
          #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
          transforms.Grayscale(),
-         # transforms.Normalize(0.5,0.5),
+         transforms.Normalize(0.5,0.5),
          #transforms.RandomPerspective(distortion_scale=0.6, p=1.0)
         ]
     )
