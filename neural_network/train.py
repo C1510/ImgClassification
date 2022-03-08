@@ -16,11 +16,12 @@ loss = 'CE'
 img_name = 'TrainingData2.tif'
 batch_name = 'Test1'
 username = 'Ken'
+bc_jitter = False
 schedule = True
-sampler = None #None, 'weightedrandom'
 
 ###########################################
 
+sampler = None #None, 'weightedrandom'
 img_name_ = img_name.split('.')[0]
 data_folder = f'../imgs_classified_png/{batch_name}_{img_name_}_{username}/'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -28,19 +29,20 @@ PATH = model_path+str(model_no)+'.pth'
 PATH = f'{model_path}/{batch_name}_{img_name_}_{username}_{model_no}.pth'
 loss = 'ce'
 
-transform = transforms.Compose(
-        [transforms.Resize((100, 100)),
-         transforms.ToTensor(),
-         #transforms.ColorJitter(brightness=0.5, contrast=0.5),
-         #transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
-         transforms.Grayscale(),
-         transforms.Normalize(0.5,0.5),
-         transforms.RandomRotation(180),
-         #transforms.RandomHorizontalFlip(),
-         #transforms.RandomVerticalFlip(),
-         #transforms.RandomPerspective(distortion_scale=0.6, p=1.0)
-        ]
-    )
+transform_list = [transforms.Resize((100, 100)),
+         transforms.ToTensor()]
+if bc_jitter:
+    transform_list+=[transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1)]
+transform_list += [transforms.Grayscale(),
+                     transforms.Normalize(0.5,0.5),
+                     transforms.RandomRotation(180),
+                     #transforms.RandomHorizontalFlip(),
+                     #transforms.RandomVerticalFlip(),
+                     #transforms.RandomPerspective(distortion_scale=0.6, p=1.0)
+                  ]
+
+
+transform = transforms.Compose(transform_list)
 
 train_loader, train_dataset = get_loader(
         data_folder, transform=transform,

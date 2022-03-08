@@ -46,7 +46,7 @@ transform = transforms.Compose(
 
 test_loader, test_dataset = get_loader(
         data_folder, transform=transform,
-    batch_size=64,
+    batch_size=128,
     num_workers=0,
     shuffle=False,
     pin_memory=False,
