@@ -13,7 +13,7 @@ Instructions for use
 1. Paste input image into imgs/ (this is part of Original_Halved.tif)
 ![example input image](lib/examples/ex1.png "optional-title")
 2. Run main.py, setting the following values (found near top of file)
-```python
+```python3
 thresholding_level = 25 #Where to threshold the image (0-255)
 min_side = 15 #Smalleset side of possible feature to consider a feature
 max_side = 200 #Biggest side of feature to consider it a feature
@@ -24,7 +24,7 @@ threshold_mode = 'mg' #'mg' or 'bi'
 save_noclass = True
 ```
 3. Run label.py, setting the following values (found near top of file)
-```python
+```python3
 img_name = 'testimg.tif' #Name of image in imgs/
 batch_name = 'test' #Must be consistent with batch used in main.py
 username = 'usr' #The user (another optional indicator for the particular run), in case multiple people want to label to check fro consistency
@@ -32,7 +32,7 @@ figsize = 5 #How big you want the matplotlib display window (size in inches, 5 r
 ```
 
 4. Open neural_network, and run train.py, setting the following values (found near top of file)
-```python
+```python3
 epochs=100 #How long to train for
 model_path = './models' #Where to save models
 model_no = 0 #In case you want to train more than once and compare models (model comparison not currently implemented)
@@ -45,7 +45,7 @@ schedule = True #Leave True, uses a learning rate scheduler.
 ```
 
 5. Paste new image for classification in, open neural_network, and run eval.py, setting the following values (found near top of file)
-```python
+```python3
 #Specifies image to test with
 img_name = 'ex1.tif'
 
@@ -62,4 +62,11 @@ model_name = ''
 
 num_classes = 3
 ```
+These images will be saved into a new folder called, into num_classes subfolders. If the network has learned well, then this will accurately reflect the true classifications!
+```python3
+data_folder_out = f'classified_png/{batch_name}_{img_name}_{username}_{model_no}/'
+```
+
+
+
 
