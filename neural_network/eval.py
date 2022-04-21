@@ -9,22 +9,32 @@ import shutil
 
 ###########################################
 
-epochs=100
+#Specifies image to test with
+img_name = 'ex1.tif'
+
+#Location of models
 model_path = './models'
+
+#Specify either these parameters to point to the correct model
 model_no = 0
-model_name = ''
-loss = 'CE'
-img_name = 'Original_Halved.tif'
 batch_name = 'test'
 username = 'usr'
+train_image_name = 'train1.tif'
+#Or specify model name exactly (leave like model_name = '' to use above parameters)
+model_name = ''
+
 num_classes = 3
 
 ###########################################
 
 img_name_ = img_name.split('.')[0]
+train_image_name_ = train_image_name.split('.')[0]
+
 data_folder = f'../imgs_classified_png/{batch_name}_{img_name_}_noclass/'
 data_folder_out = f'classified_png/{batch_name}_{img_name_}_{username}_{model_no}/'
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+if model_name == '':
+    model_name = f'{batch_name}_{train_image_name_}_{username}_{model_no}'
 PATH = f'{model_path}/{model_name}.pth'
 loss = 'ce'
 

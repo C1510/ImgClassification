@@ -13,9 +13,9 @@ epochs=100
 model_path = './models'
 model_no = 0
 loss = 'CE'
-img_name = 'TrainingData2.tif'
-batch_name = 'Test1'
-username = 'Ken'
+img_name = 'train1.tif'
+batch_name = 'test'
+username = 'usr'
 bc_jitter = False
 schedule = True
 

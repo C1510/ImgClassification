@@ -46,15 +46,20 @@ schedule = True #Leave True, uses a learning rate scheduler.
 
 5. Paste new image for classification in, open neural_network, and run eval.py, setting the following values (found near top of file)
 ```python
-epochs=100 #Ignore
-model_path = './models' #Should be the same as above
-model_no = 0 #Should be the same model_no as above
-model_name = 'test_testimg_usr_0.pth' #Model name generated with train.py, in the form:
-# {batch_name}_{img_name}_{username}_{model_no}
-loss = 'CE' #Irrelevant
-img_name = 'evalimage.tif' #Name of image to be classified
-batch_name = 'test' #
-username = 'mark'
+#Specifies image to test with
+img_name = 'ex1.tif'
+
+#Location of models
+model_path = './models' #Same location as above
+
+#Specify either these parameters to point to the correct model
+model_no = 0
+batch_name = 'test'
+username = 'usr'
+train_image_name = 'train1.tif'
+#Or specify model name exactly (leave like model_name = '' to use above parameters)
+model_name = ''
+
 num_classes = 3
 ```
 

@@ -10,7 +10,7 @@ import pandas as pd
 
 ''' THESE ARE PARAMETERS YOU CAN CHANGE  '''
 
-img_name = 'Original_Halved.tif'
+img_name = 'train1.tif'
 batch_name = 'test'
 username = 'mark'
 figsize = 5
