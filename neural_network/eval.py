@@ -16,7 +16,7 @@ model_name = ''
 loss = 'CE'
 img_name = 'Original_Halved.tif'
 batch_name = 'test'
-username = 'mark'
+username = 'usr'
 num_classes = 3
 
 ###########################################
